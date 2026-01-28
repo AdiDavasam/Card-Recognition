@@ -1,0 +1,131 @@
+package Filters;
+
+import Interfaces.Interactive;
+import Interfaces.PixelFilter;
+import core.DImage;
+
+import java.util.ArrayList;
+
+public class CardFilter implements PixelFilter, Interactive {
+    short threshold;
+    short[][] red, green, blue, grid;
+    ArrayList<Cluster> clusters;
+    ArrayList<Point> points;
+    int numberOfCardsHeight;
+    int numberOfCardsWidth;
+    public CardFilter() {
+        threshold = 190;
+        clusters = new ArrayList<>();
+        points = new ArrayList<>();
+        numberOfCardsHeight = 3;
+        numberOfCardsWidth = 3;
+    }
+    @Override
+    public DImage processImage(DImage img) {
+        red = img.getRedChannel();
+        green = img.getGreenChannel();
+        blue = img.getBlueChannel();
+        grid = img.getBWPixelGrid();
+
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[r].length; c++) {
+                if (grid[r][c] > threshold) {
+                    grid[r][c] = 255;
+                } else {
+                    grid[r][c] = 0;
+                }
+            }
+        }
+
+
+
+        img.setPixels(grid);
+        return img;
+
+//        img.setColorChannels(red, green, blue);
+//        return img;
+    }
+
+
+
+    public void printColorChannels() {
+        for (int i = 0; i < red.length; i++) {
+            for (int j = 0; j < red[0].length; j++) {
+                System.out.print("Red: " + red[i][j] + " ");
+                System.out.print("Green: " + green[i][j] + " ");
+                System.out.print("Blue: " + blue[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    public void reAssignPixelColors() {
+        for (Cluster c : clusters) {
+            for (Point point : c.getPoints()) {
+                red[point.getRow()][point.getCol()] = c.getCenter().getR();
+                green[point.getRow()][point.getCol()] = c.getCenter().getG();
+                blue[point.getRow()][point.getCol()] = c.getCenter().getB();
+            }
+        }
+    }
+
+    public void reCalculateClusterCenters() {
+        for (int i = 0; i < points.size(); i++) {
+            double max = points.get(i).colorDistanceTo(clusters.get(0).getCenter())+1;
+            int c = 0;
+            for (int j = 0; j < clusters.size(); j++) {
+                if(points.get(i).colorDistanceTo(clusters.get(j).getCenter()) < max){
+                    max = points.get(i).colorDistanceTo(clusters.get(j).getCenter());
+                    c = j;
+                }
+            }
+
+            clusters.get(c).addPoint(points.get(i));
+        }
+
+        for (int i = 0; i < clusters.size(); i++) {
+            System.out.println("Size: " + clusters.get(i).getSize());
+            System.out.println(clusters.get(i).getCenter().getR());
+            clusters.get(i).reCalculateCenter();
+            System.out.println(clusters.get(i).getCenter().getR());
+
+        }
+    }
+
+    public void initClusters() {
+        int heightBetweenCards = (grid.length/numberOfCardsHeight);
+        int lengthBetweenCards = (grid[0].length/numberOfCardsWidth);
+        for (int i = 0; i < numberOfCardsHeight; i++) {
+            for (int j = 0; j < numberOfCardsWidth; j++) {
+                //clusters.add(new Cluster());
+            }
+        }
+    }
+
+    public void clearClusters() {
+        for (int i = 0; i < clusters.size(); i++) {
+            clusters.get(i).clear();
+        }
+    }
+
+    public void makePointList(){
+        for (int row = 0; row < red.length; row++) {
+            for (int col = 0; col < red[0].length; col++) {
+                points.add(new Point(red[row][col], green[row][col],blue[row][col],row,col));
+            }
+
+        }
+    }
+    @Override
+    public void mouseClicked(int mouseX, int mouseY, DImage original, DImage filtered) {
+
+    }
+    @Override
+    public void keyPressed(char key) {
+        if (key == '-') threshold -= 5;
+        if (key == '=') threshold += 5;
+        System.out.println("Threshold: " + threshold);
+
+    }
+}
+
