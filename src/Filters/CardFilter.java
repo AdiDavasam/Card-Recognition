@@ -19,6 +19,8 @@ public class CardFilter implements PixelFilter, Interactive {
         points = new ArrayList<>();
         numberOfCardsHeight = 3;
         numberOfCardsWidth = 3;
+//        initClusters();
+
     }
     @Override
     public DImage processImage(DImage img) {
@@ -26,7 +28,50 @@ public class CardFilter implements PixelFilter, Interactive {
         green = img.getGreenChannel();
         blue = img.getBlueChannel();
         grid = img.getBWPixelGrid();
+        makeColorChannelsGray();
+        initClusters(2);
+        makePointList();//all points in grid into points
+        for (int i = 0; i < 10; i++) {
+            reCalculateClusterCenters();//moves all the clusters to center
+            reAssignPixelColors();
+            if (i != 9) clearClusters();
+            for (int j = 0; j < clusters.size(); j++) {
+                printPointRGB(clusters.get(j).getCenter());
+            }
+            System.out.println("Number " + i + ":");
+        }
 
+//        printPointsInCluster(clusters.get(0));
+        printPointRGB(clusters.get(1).getCenter());
+//        colorMaskAtThreshold(threshold);
+
+
+
+//        img.setPixels(grid);
+//        return img;
+//
+        reAssignPixelColors();
+        img.setColorChannels(red, green, blue);
+        return img;
+    }
+
+    public void makeColorChannelsGray() {
+        for (int row = 0; row < grid.length; row++) {
+            for (int col = 0; col <grid[0].length; col++) {
+                red[row][col] = grid[row][col];
+                green[row][col] = grid[row][col];
+                blue[row][col] = grid[row][col];
+            }
+        }
+    }
+
+    public void printPointsInCluster(Cluster cluster) {
+        for (Point p : cluster.getPoints()) {
+            System.out.println("Row: " + p.getRow() +"\tCol: " + p.getCol());
+        }
+    }
+
+    public void colorMaskAtThreshold(int threshold) {
         for (int r = 0; r < grid.length; r++) {
             for (int c = 0; c < grid[r].length; c++) {
                 if (grid[r][c] > threshold) {
@@ -36,17 +81,14 @@ public class CardFilter implements PixelFilter, Interactive {
                 }
             }
         }
-
-
-
-        img.setPixels(grid);
-        return img;
-
-//        img.setColorChannels(red, green, blue);
-//        return img;
     }
 
-
+    public void printPointRGB(Point p) {
+        System.out.print("Red: " + p.getR() + " ");
+        System.out.print("Green: " + p.getG() + " ");
+        System.out.print("Blue: " + p.getB() + " ");
+        System.out.println();
+    }
 
     public void printColorChannels() {
         for (int i = 0; i < red.length; i++) {
@@ -79,16 +121,10 @@ public class CardFilter implements PixelFilter, Interactive {
                     c = j;
                 }
             }
-
             clusters.get(c).addPoint(points.get(i));
         }
-
         for (int i = 0; i < clusters.size(); i++) {
-            System.out.println("Size: " + clusters.get(i).getSize());
-            System.out.println(clusters.get(i).getCenter().getR());
             clusters.get(i).reCalculateCenter();
-            System.out.println(clusters.get(i).getCenter().getR());
-
         }
     }
 
@@ -97,8 +133,14 @@ public class CardFilter implements PixelFilter, Interactive {
         int lengthBetweenCards = (grid[0].length/numberOfCardsWidth);
         for (int i = 0; i < numberOfCardsHeight; i++) {
             for (int j = 0; j < numberOfCardsWidth; j++) {
-                //clusters.add(new Cluster());
+                clusters.add(new Cluster(heightBetweenCards * i, lengthBetweenCards * j));
             }
+        }
+    }
+
+    public void initClusters(int amt) {
+        for (int i = 0; i < amt; i++) {
+            clusters.add(new Cluster((short)(Math.random() * grid.length),(short)(Math.random() * grid[0].length)));
         }
     }
 
@@ -122,9 +164,15 @@ public class CardFilter implements PixelFilter, Interactive {
     }
     @Override
     public void keyPressed(char key) {
-        if (key == '-') threshold -= 5;
-        if (key == '=') threshold += 5;
-        System.out.println("Threshold: " + threshold);
+        if (key == '-' && threshold - 5 >=0) {
+            threshold -= 5;
+            System.out.println("Threshold: " + threshold);
+        }
+        if (key == '=' && threshold + 5 <=255) {
+            threshold += 5;
+            System.out.println("Threshold: " + threshold);
+        }
+
 
     }
 }
