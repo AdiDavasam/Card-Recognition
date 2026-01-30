@@ -1,12 +1,14 @@
 package Filters;
 
+import Interfaces.Drawable;
 import Interfaces.Interactive;
 import Interfaces.PixelFilter;
 import core.DImage;
+import processing.core.PApplet;
 
 import java.util.ArrayList;
 
-public class CardFilter implements PixelFilter, Interactive {
+public class CardFilter implements PixelFilter, Interactive, Drawable {
     short threshold;
     short[][] red, green, blue, grid;
     ArrayList<Cluster> clusters;
@@ -28,28 +30,27 @@ public class CardFilter implements PixelFilter, Interactive {
         green = img.getGreenChannel();
         blue = img.getBlueChannel();
         grid = img.getBWPixelGrid();
+        colorMaskAtThreshold(threshold);
         makeColorChannelsGray();
-        initClusters(2);
+
+        initClusters();
         makePointList();//all points in grid into points
         for (int i = 0; i < 10; i++) {
             reCalculateClusterCenters();//moves all the clusters to center
             reAssignPixelColors();
-            if (i != 9) clearClusters();
-            for (int j = 0; j < clusters.size(); j++) {
-                printPointRGB(clusters.get(j).getCenter());
-            }
+            clearClusters();
             System.out.println("Number " + i + ":");
         }
 
 //        printPointsInCluster(clusters.get(0));
         printPointRGB(clusters.get(1).getCenter());
-//        colorMaskAtThreshold(threshold);
 
 
 
 //        img.setPixels(grid);
 //        return img;
 //
+        System.out.println("Cluster size: " + clusters.size());
         reAssignPixelColors();
         img.setColorChannels(red, green, blue);
         return img;
@@ -113,15 +114,15 @@ public class CardFilter implements PixelFilter, Interactive {
 
     public void reCalculateClusterCenters() {
         for (int i = 0; i < points.size(); i++) {
-            double max = points.get(i).colorDistanceTo(clusters.get(0).getCenter())+1;
-            int c = 0;
+            double max = points.get(i).distanceToOtherPoint(clusters.get(0).getCenter())+1;
+            int indexOfHighest = 0;
             for (int j = 0; j < clusters.size(); j++) {
-                if(points.get(i).colorDistanceTo(clusters.get(j).getCenter()) < max){
-                    max = points.get(i).colorDistanceTo(clusters.get(j).getCenter());
-                    c = j;
+                if(points.get(i).distanceToOtherPoint(clusters.get(j).getCenter()) < max && points.get(i).getColor() > 200){
+                    max = points.get(i).distanceToOtherPoint(clusters.get(j).getCenter());
+                    indexOfHighest = j;
                 }
             }
-            clusters.get(c).addPoint(points.get(i));
+            clusters.get(indexOfHighest).addPoint(points.get(i));
         }
         for (int i = 0; i < clusters.size(); i++) {
             clusters.get(i).reCalculateCenter();
@@ -132,7 +133,7 @@ public class CardFilter implements PixelFilter, Interactive {
         int heightBetweenCards = (grid.length/numberOfCardsHeight);
         int lengthBetweenCards = (grid[0].length/numberOfCardsWidth);
         for (int i = 0; i < numberOfCardsHeight; i++) {
-            for (int j = 0; j < numberOfCardsWidth; j++) {
+            for (int j = 1; j <= numberOfCardsWidth; j++) {
                 clusters.add(new Cluster(heightBetweenCards * i, lengthBetweenCards * j));
             }
         }
@@ -173,6 +174,17 @@ public class CardFilter implements PixelFilter, Interactive {
             System.out.println("Threshold: " + threshold);
         }
 
+
+    }
+    @Override
+    public void drawOverlay(PApplet window, DImage original, DImage filtered) {
+        window.fill(255, 0, 0);
+        window.ellipse(original.getWidth(), original.getHeight(), 10, 10);
+
+        window.fill(255,0,0);
+        for (int i = 0; i < clusters.size(); i++) {
+            window.ellipse(clusters.get(i).getCenter().getRow(),clusters.get(i).getCenter().getCol(), 5,5);
+        }
 
     }
 }

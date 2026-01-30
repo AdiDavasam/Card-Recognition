@@ -5,6 +5,8 @@ import Interfaces.PixelFilter;
 import core.DImage;
 import processing.core.PApplet;
 
+import java.util.ArrayList;
+
 public class DrawingFilter implements PixelFilter, Drawable {
 
     @Override
