@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Card {
     private short[][] cardGrid;
     private int startRow, startCol, width, height;
-    private int topLeft, bottomLeft, topRight, bottomRight;
+    private Point topLeft, bottomLeft, topRight, bottomRight;
     ArrayList<Point> allPoints;
     Point controlPoint;
 
@@ -15,44 +15,130 @@ public class Card {
         this.width = width;
         this.height = height;
         short white = 255;
-        controlPoint = new Point(white,white,white,0,0);
+        short black = 0;
+        controlPoint = new Point(white,white, white,0,0);
+        topLeft = new Point(black,black,black,0,0);
+        bottomLeft = new Point(black,black,black,0,0);
+        topRight = new Point(black,black,black,0,0);
+        bottomRight = new Point(black,black,black,0,0);
+        cardGrid = new short[height][width];
+
     }
 
     public void copySubGrid(short[][] originalGrid) {
-        cardGrid = new short[height+1][width+1];
-        for (int row = startRow; row <= startRow + height; row++) {
-            for (int col = startCol; col <= startCol + width; col++) {
+        cardGrid = new short[height][width];
+
+
+
+        for (int row = startRow; row < startRow + height; row++) {
+            for (int col = startCol; col < startCol + width; col++) {
                 cardGrid[row - startRow][col-startCol] = originalGrid[row][col];
             }
+            System.out.println(row);
         }
-        makePointList();
+//        makePointList();
     }
 
-    public int getTopLeft() {
-        for (Point p : allPoints) {
-            if (p)
+    public void assignTopLeft() {
+        controlPoint.setRow(0);
+        controlPoint.setCol(0);
+        double closest = Double.MAX_VALUE;
+        int closestIndex = -1;
+        for (int i = 0; i < allPoints.size(); i++) {
+            Point p = allPoints.get(i);
+            double dist = p.distanceToOtherPoint(controlPoint);
+            if (dist < closest && p.getR() > 230) {
+                closest = dist;
+                closestIndex = i;
+            }
         }
-        return topLeft;
+        topLeft = allPoints.get(closestIndex);
     }
 
-    public int getBottomLeft() {
-        return bottomLeft;
+    public void assignBottomLeft() {
+        controlPoint.setRow(height);
+        controlPoint.setCol(0);
+        double closest = Double.MAX_VALUE;
+        int closestIndex = -1;
+        for (int i = 0; i < allPoints.size(); i++) {
+            Point p = allPoints.get(i);
+            double dist = p.distanceToOtherPoint(controlPoint);
+            if (dist < closest && p.getR() > 230) {
+                closest = dist;
+                closestIndex = i;
+            }
+        }
+        topLeft = allPoints.get(closestIndex);
     }
 
-    public int getTopRight() {
-        return topRight;
+    public void assignTopRight() {
+        controlPoint.setRow(0);
+        controlPoint.setCol(width);
+        double closest = Double.MAX_VALUE;
+        int closestIndex = -1;
+        for (int i = 0; i < allPoints.size(); i++) {
+            Point p = allPoints.get(i);
+            double dist = p.distanceToOtherPoint(controlPoint);
+            if (dist < closest && p.getR() > 230) {
+                closest = dist;
+                closestIndex = i;
+            }
+        }
+        topLeft = allPoints.get(closestIndex);
     }
 
-    public int getBottomRight() {
+    public void assignBottomRight() {
+        controlPoint.setRow(height);
+        controlPoint.setCol(width);
+        double closest = Double.MAX_VALUE;
+        int closestIndex = -1;
+        for (int i = 0; i < allPoints.size(); i++) {
+            Point p = allPoints.get(i);
+            double dist = p.distanceToOtherPoint(controlPoint);
+            if (dist < closest && p.getR() > 230) {
+                closest = dist;
+                closestIndex = i;
+            }
+        }
+        topLeft = allPoints.get(closestIndex);
+    }
+    public void makePointList(){
+        for (int row = 0; row <= height; row++) {
+            for (int col = 0; col <= width; col++) {
+                allPoints.add(new Point(cardGrid[row][col], cardGrid[row][col],cardGrid[row][col],row,col));
+            }
+        }
+    }
+
+    public Point getBottomRight() {
         return bottomRight;
     }
 
-    public void makePointList(){
-        ArrayList<Point> points = new ArrayList<>();
-        for (int row = 0; row <= height; row++) {
-            for (int col = 0; col <= width; col++) {
-                points.add(new Point(cardGrid[row][col], cardGrid[row][col],cardGrid[row][col],row,col));
-            }
-        }
+    public Point getTopRight() {
+        return topRight;
+    }
+
+    public Point getBottomLeft() {
+        return bottomLeft;
+    }
+
+    public Point getTopLeft() {
+        return topLeft;
+    }
+
+    public int getStartRow() {
+        return startRow;
+    }
+
+    public int getStartCol() {
+        return startCol;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

@@ -15,6 +15,8 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
     ArrayList<Point> points;
     int numberOfCardsHeight;
     int numberOfCardsWidth;
+    Card a;
+
     public CardFilter() {
         threshold = 190;
         clusters = new ArrayList<>();
@@ -22,6 +24,7 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         numberOfCardsHeight = 3;
         numberOfCardsWidth = 3;
 //        initClusters();
+        a = new Card(0,0, 582, 510);
 
     }
     @Override
@@ -33,25 +36,33 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         colorMaskAtThreshold(threshold);
         makeColorChannelsGray();
 
-        initClusters();
+        //initClusters();
         makePointList();//all points in grid into points
-        for (int i = 0; i < 10; i++) {
-            reCalculateClusterCenters();//moves all the clusters to center
-            reAssignPixelColors();
-            clearClusters();
-            System.out.println("Number " + i + ":");
-        }
+        a.copySubGrid(red);
+        a.makePointList();
+
+
+//        for (int i = 0; i < 10; i++) {
+//            reCalculateClusterCenters();//moves all the clusters to center
+//            reAssignPixelColors();
+//            clearClusters();
+//            System.out.println("Number " + i + ":");
+//        }
 
 //        printPointsInCluster(clusters.get(0));
-        printPointRGB(clusters.get(1).getCenter());
+        //printPointRGB(clusters.get(1).getCenter());
+
+
+        a.assignTopLeft();
+
 
 
 
 //        img.setPixels(grid);
 //        return img;
 //
-        System.out.println("Cluster size: " + clusters.size());
-        reAssignPixelColors();
+//        System.out.println("Cluster size: " + clusters.size());
+//        reAssignPixelColors();
         img.setColorChannels(red, green, blue);
         return img;
     }
@@ -182,9 +193,10 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         window.ellipse(original.getWidth(), original.getHeight(), 10, 10);
 
         window.fill(255,0,0);
-        for (int i = 0; i < clusters.size(); i++) {
-            window.ellipse(clusters.get(i).getCenter().getRow(),clusters.get(i).getCenter().getCol(), 5,5);
-        }
+//        for (int i = 0; i < clusters.size(); i++) {
+//            window.ellipse(clusters.get(i).getCenter().getRow(),clusters.get(i).getCenter().getCol(), 5,5);
+//        }
+        window.ellipse(a.getTopLeft().getRow() + a.getStartRow(), a.getTopLeft().getCol() + a.getStartCol(),20,20);
 
     }
 }
