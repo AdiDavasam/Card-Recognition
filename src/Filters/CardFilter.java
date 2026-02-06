@@ -24,9 +24,9 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         points = new ArrayList<>();
         numberOfCardsHeight = 3;
         numberOfCardsWidth = 3;
+        cards = new ArrayList<>();
 //        initClusters();
-        a = new Card(46,26, 164, 153);
-
+//        a = new Card(46,26, 164, 153);
     }
     @Override
     public DImage processImage(DImage img) {
@@ -36,13 +36,19 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         grid = img.getBWPixelGrid();
         colorMaskAtThreshold(threshold);
         makeColorChannelsGray();
+        initCards();
+
 
         //initClusters();
         makePointList();//all points in grid into points
-        a.copySubGrid(red);
-        a.makePointList();
+//        a.copySubGrid(red);
+//        a.makePointList();
 
         initCards();
+        for (Card a : cards) {
+            a.copySubGrid(red);
+            a.makePointList();
+        }
 
 //        for (int i = 0; i < 10; i++) {
 //            reCalculateClusterCenters();//moves all the clusters to center
@@ -55,11 +61,12 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         //printPointRGB(clusters.get(1).getCenter());
 
 
-        a.assignTopLeft();
-        a.assignBottomLeft();
-        a.assignBottomRight();
-        a.assignTopRight();
-
+        for (Card a : cards) {
+            a.assignTopLeft();
+            a.assignBottomLeft();
+            a.assignBottomRight();
+            a.assignTopRight();
+        }
 
 
 
@@ -100,12 +107,21 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
                 columnSplits.add(i);
             }
         }
-        rowSplits.add(red.length);
-        columnSplits.add(red[0].length);
+        rowSplits.add(red.length-1);
+        columnSplits.add(red[0].length-1);
 //        for (int i = 0; i < columnSplits.size(); i++) {
 //            System.out.println(columnSplits.get(i));
 //        }
 //        System.out.println();
+        for (int i = 0; i < rowSplits.size() / 2; i+=2) {
+            int startRow = (rowSplits.get(i) + rowSplits.get(i+1))/2;
+            int height = rowSplits.get(i+1) - rowSplits.get(i); // this is not the height of the card only between wrong this
+            for (int j = 0; j < columnSplits.size() / 2; j+=2) {
+                int startCol = (columnSplits.get(i) + columnSplits.get(i+1))/2;
+                int width = columnSplits.get(i+1) - columnSplits.get(i);
+                cards.add(new Card(startRow,startCol,height,width));
+            }
+        }
     }
 
     public int addAllValuesInRow(short[] arr) {
@@ -255,11 +271,12 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
 //        }
 //        System.out.println("Start Row: " + (a.getStartRow() + a.getBottomLeft().getRow()));
 //        System.out.println("Start Col: " + (a.getStartCol() + a.getBottomLeft().getCol()));
-        window.ellipse(a.getTopLeft().getCol() + a.getStartCol(),a.getTopLeft().getRow() + a.getStartRow(),20,20);
-        window.ellipse(a.getBottomLeft().getCol() + a.getStartCol(),a.getBottomLeft().getRow() + a.getStartRow(),20,20);
-        window.ellipse(a.getTopRight().getCol() + a.getStartCol(),a.getTopRight().getRow() + a.getStartRow(),20,20);
-        window.ellipse(a.getBottomRight().getCol() + a.getStartCol(),a.getBottomRight().getRow() + a.getStartRow(),20,20);
-
+        for (Card a : cards) {
+            window.ellipse(a.getTopLeft().getCol() + a.getStartCol(), a.getTopLeft().getRow() + a.getStartRow(), 20, 20);
+            window.ellipse(a.getBottomLeft().getCol() + a.getStartCol(), a.getBottomLeft().getRow() + a.getStartRow(), 20, 20);
+            window.ellipse(a.getTopRight().getCol() + a.getStartCol(), a.getTopRight().getRow() + a.getStartRow(), 20, 20);
+            window.ellipse(a.getBottomRight().getCol() + a.getStartCol(), a.getBottomRight().getRow() + a.getStartRow(), 20, 20);
+        }
     }
 }
 
