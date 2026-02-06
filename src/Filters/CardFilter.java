@@ -16,6 +16,7 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
     int numberOfCardsHeight;
     int numberOfCardsWidth;
     Card a;
+    ArrayList<Card> cards;
 
     public CardFilter() {
         threshold = 190;
@@ -24,7 +25,7 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         numberOfCardsHeight = 3;
         numberOfCardsWidth = 3;
 //        initClusters();
-        a = new Card(0,0, 582, 510);
+        a = new Card(46,26, 164, 153);
 
     }
     @Override
@@ -41,6 +42,7 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         a.copySubGrid(red);
         a.makePointList();
 
+        initCards();
 
 //        for (int i = 0; i < 10; i++) {
 //            reCalculateClusterCenters();//moves all the clusters to center
@@ -54,6 +56,9 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
 
 
         a.assignTopLeft();
+        a.assignBottomLeft();
+        a.assignBottomRight();
+        a.assignTopRight();
 
 
 
@@ -65,6 +70,58 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
 //        reAssignPixelColors();
         img.setColorChannels(red, green, blue);
         return img;
+    }
+
+    public void initCards() {
+        ArrayList<Integer> columnSplits = new ArrayList<>();
+        ArrayList<Integer> rowSplits = new ArrayList<>();
+        rowSplits.add(0);
+        columnSplits.add(0);
+        boolean white = true;
+        boolean black = false;
+        boolean color = true;
+
+        for (int i = 0; i < red.length; i++) {
+            if(color == white && addAllValuesInRow(red[i])/(double)(red[0].length) >= 0.2) {
+                color = black;
+                rowSplits.add(i);
+            } else if(color == black && addAllValuesInRow(red[i])/(double)(red[0].length) <= 0.7) {
+                color = white;
+                rowSplits.add(i);
+            }
+        }
+
+        for (int i = 0; i < red[0].length; i++) {
+            if(color == white && addAllValuesInCol(red,i)/(double)(red.length) >= 0.2) {
+                color = black;
+                columnSplits.add(i);
+            } else if(color == black && addAllValuesInCol(red,i)/(double)(red.length) <= 0.7) {
+                color = white;
+                columnSplits.add(i);
+            }
+        }
+        rowSplits.add(red.length);
+        columnSplits.add(red[0].length);
+//        for (int i = 0; i < columnSplits.size(); i++) {
+//            System.out.println(columnSplits.get(i));
+//        }
+//        System.out.println();
+    }
+
+    public int addAllValuesInRow(short[] arr) {
+        int sum = 0;
+        for (int i = 0; i < arr.length; i++) {
+            sum += arr[i];
+        }
+        return sum;
+    }
+
+    public int addAllValuesInCol(short[][] arr, int col) {
+        int sum = 0;
+        for (int i = 0; i < arr.length; i++) {
+            sum += arr[i][col];
+        }
+        return sum;
     }
 
     public void makeColorChannelsGray() {
@@ -190,13 +247,18 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
     @Override
     public void drawOverlay(PApplet window, DImage original, DImage filtered) {
         window.fill(255, 0, 0);
-        window.ellipse(original.getWidth(), original.getHeight(), 10, 10);
+//        window.ellipse(original.getWidth(), original.getHeight(), 10, 10);
 
         window.fill(255,0,0);
 //        for (int i = 0; i < clusters.size(); i++) {
 //            window.ellipse(clusters.get(i).getCenter().getRow(),clusters.get(i).getCenter().getCol(), 5,5);
 //        }
-        window.ellipse(a.getTopLeft().getRow() + a.getStartRow(), a.getTopLeft().getCol() + a.getStartCol(),20,20);
+//        System.out.println("Start Row: " + (a.getStartRow() + a.getBottomLeft().getRow()));
+//        System.out.println("Start Col: " + (a.getStartCol() + a.getBottomLeft().getCol()));
+        window.ellipse(a.getTopLeft().getCol() + a.getStartCol(),a.getTopLeft().getRow() + a.getStartRow(),20,20);
+        window.ellipse(a.getBottomLeft().getCol() + a.getStartCol(),a.getBottomLeft().getRow() + a.getStartRow(),20,20);
+        window.ellipse(a.getTopRight().getCol() + a.getStartCol(),a.getTopRight().getRow() + a.getStartRow(),20,20);
+        window.ellipse(a.getBottomRight().getCol() + a.getStartCol(),a.getBottomRight().getRow() + a.getStartRow(),20,20);
 
     }
 }
