@@ -15,7 +15,6 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
     ArrayList<Point> points;
     int numberOfCardsHeight;
     int numberOfCardsWidth;
-    Card a;
     ArrayList<Card> cards;
 
     public CardFilter() {
@@ -25,8 +24,7 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         numberOfCardsHeight = 3;
         numberOfCardsWidth = 3;
         cards = new ArrayList<>();
-//        initClusters();
-//        a = new Card(46,26, 164, 153);
+
     }
     @Override
     public DImage processImage(DImage img) {
@@ -37,29 +35,12 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         colorMaskAtThreshold(threshold);
         makeColorChannelsGray();
         initCards();
-
-
-        //initClusters();
         makePointList();//all points in grid into points
-//        a.copySubGrid(red);
-//        a.makePointList();
 
-        initCards();
         for (Card a : cards) {
             a.copySubGrid(red);
             a.makePointList();
         }
-
-//        for (int i = 0; i < 10; i++) {
-//            reCalculateClusterCenters();//moves all the clusters to center
-//            reAssignPixelColors();
-//            clearClusters();
-//            System.out.println("Number " + i + ":");
-//        }
-
-//        printPointsInCluster(clusters.get(0));
-        //printPointRGB(clusters.get(1).getCenter());
-
 
         for (Card a : cards) {
             a.assignTopLeft();
@@ -68,13 +49,6 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
             a.assignTopRight();
         }
 
-
-
-//        img.setPixels(grid);
-//        return img;
-//
-//        System.out.println("Cluster size: " + clusters.size());
-//        reAssignPixelColors();
         img.setColorChannels(red, green, blue);
         return img;
     }
@@ -109,13 +83,10 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         }
         rowSplits.add(red.length-1);
         columnSplits.add(red[0].length-1);
-//        for (int i = 0; i < columnSplits.size(); i++) {
-//            System.out.println(columnSplits.get(i));
-//        }
-//        System.out.println();
+
         for (int i = 0; i < rowSplits.size() / 2; i+=2) {
             int startRow = (rowSplits.get(i) + rowSplits.get(i+1))/2;
-            int height = rowSplits.get(i+1) - rowSplits.get(i); // this is not the height of the card only between wrong this
+            int height = rowSplits.get(i+2) - rowSplits.get(i+1); // this is not the height of the card only between wrong this
             for (int j = 0; j < columnSplits.size() / 2; j+=2) {
                 int startCol = (columnSplits.get(i) + columnSplits.get(i+1))/2;
                 int width = columnSplits.get(i+1) - columnSplits.get(i);
@@ -168,73 +139,6 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         }
     }
 
-    public void printPointRGB(Point p) {
-        System.out.print("Red: " + p.getR() + " ");
-        System.out.print("Green: " + p.getG() + " ");
-        System.out.print("Blue: " + p.getB() + " ");
-        System.out.println();
-    }
-
-    public void printColorChannels() {
-        for (int i = 0; i < red.length; i++) {
-            for (int j = 0; j < red[0].length; j++) {
-                System.out.print("Red: " + red[i][j] + " ");
-                System.out.print("Green: " + green[i][j] + " ");
-                System.out.print("Blue: " + blue[i][j] + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    public void reAssignPixelColors() {
-        for (Cluster c : clusters) {
-            for (Point point : c.getPoints()) {
-                red[point.getRow()][point.getCol()] = c.getCenter().getR();
-                green[point.getRow()][point.getCol()] = c.getCenter().getG();
-                blue[point.getRow()][point.getCol()] = c.getCenter().getB();
-            }
-        }
-    }
-
-    public void reCalculateClusterCenters() {
-        for (int i = 0; i < points.size(); i++) {
-            double max = points.get(i).distanceToOtherPoint(clusters.get(0).getCenter())+1;
-            int indexOfHighest = 0;
-            for (int j = 0; j < clusters.size(); j++) {
-                if(points.get(i).distanceToOtherPoint(clusters.get(j).getCenter()) < max && points.get(i).getColor() > 200){
-                    max = points.get(i).distanceToOtherPoint(clusters.get(j).getCenter());
-                    indexOfHighest = j;
-                }
-            }
-            clusters.get(indexOfHighest).addPoint(points.get(i));
-        }
-        for (int i = 0; i < clusters.size(); i++) {
-            clusters.get(i).reCalculateCenter();
-        }
-    }
-
-    public void initClusters() {
-        int heightBetweenCards = (grid.length/numberOfCardsHeight);
-        int lengthBetweenCards = (grid[0].length/numberOfCardsWidth);
-        for (int i = 0; i < numberOfCardsHeight; i++) {
-            for (int j = 1; j <= numberOfCardsWidth; j++) {
-                clusters.add(new Cluster(heightBetweenCards * i, lengthBetweenCards * j));
-            }
-        }
-    }
-
-    public void initClusters(int amt) {
-        for (int i = 0; i < amt; i++) {
-            clusters.add(new Cluster((short)(Math.random() * grid.length),(short)(Math.random() * grid[0].length)));
-        }
-    }
-
-    public void clearClusters() {
-        for (int i = 0; i < clusters.size(); i++) {
-            clusters.get(i).clear();
-        }
-    }
-
     public void makePointList(){
         for (int row = 0; row < red.length; row++) {
             for (int col = 0; col < red[0].length; col++) {
@@ -257,20 +161,20 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
             threshold += 5;
             System.out.println("Threshold: " + threshold);
         }
+        if (key == '1') System.out.println(cards.get(0).getStartRow());
+        if (key == '2') System.out.println(cards.get(1).getStartRow());
+        if (key == '3') System.out.println(cards.get(2).getStartRow());
+        if (key == '4') System.out.println(cards.get(3).getStartRow());
+        if (key == '5') System.out.println(cards.get(4).getStartRow());
+        if (key == '6') System.out.println(cards.get(5).getStartRow());
+        if (key == '7') System.out.println(cards.get(6).getStartRow());
+        if (key == '8') System.out.println(cards.get(7).getStartRow());
 
 
     }
     @Override
     public void drawOverlay(PApplet window, DImage original, DImage filtered) {
         window.fill(255, 0, 0);
-//        window.ellipse(original.getWidth(), original.getHeight(), 10, 10);
-
-        window.fill(255,0,0);
-//        for (int i = 0; i < clusters.size(); i++) {
-//            window.ellipse(clusters.get(i).getCenter().getRow(),clusters.get(i).getCenter().getCol(), 5,5);
-//        }
-//        System.out.println("Start Row: " + (a.getStartRow() + a.getBottomLeft().getRow()));
-//        System.out.println("Start Col: " + (a.getStartCol() + a.getBottomLeft().getCol()));
         for (Card a : cards) {
             window.ellipse(a.getTopLeft().getCol() + a.getStartCol(), a.getTopLeft().getRow() + a.getStartRow(), 20, 20);
             window.ellipse(a.getBottomLeft().getCol() + a.getStartCol(), a.getBottomLeft().getRow() + a.getStartRow(), 20, 20);
