@@ -7,6 +7,7 @@ public class Card {
     private int startRow, startCol, width, height;
     private Point topLeft, bottomLeft, topRight, bottomRight;
     private String shapeColor;
+    private final int WHITE = 255, BLACK = 0;
     ArrayList<Point> allPoints;
     Point controlPoint;
 
@@ -57,7 +58,7 @@ public class Card {
         int blueSum = 0;
         for (int row = 0; row < colorGridR.length; row++) {
             for (int col = 0; col < colorGridR[0].length; col++) {
-                if (colorGridR[row][col] > 200 && colorGridG[row][col] > 200 && colorGridB[row][col] > 200) continue;
+                if (colorGridR[row][col] > 185 && colorGridG[row][col] > 185 && colorGridB[row][col] > 185) continue;
                 if (colorGridR[row][col] < 80 && colorGridG[row][col] < 80 && colorGridB[row][col] < 80) continue;
 
                 redSum+= colorGridR[row][col];
@@ -67,8 +68,26 @@ public class Card {
         }
         if (greenSum > redSum && greenSum > blueSum) shapeColor = "Green";
         if (blueSum > greenSum && blueSum > redSum) shapeColor = "Purple";
-        if (redSum > greenSum && (double)blueSum/redSum >= 0.8) shapeColor = "Purple"; //bc purple sometimes has a bit mroe red than blue
-        if (redSum > greenSum && (double)blueSum/redSum < 0.8) shapeColor = "Red";
+        if (redSum > greenSum && (double)blueSum/redSum >= 0.85) shapeColor = "Purple"; //bc purple sometimes has a bit mroe red than blue
+        if (redSum > greenSum && (double)blueSum/redSum < 0.85) shapeColor = "Red";
+    }
+
+    public int findAmountOfShapes() {
+        int counter = 0;
+        int checkingColor = WHITE;
+        boolean lookingForWhite = true;
+        int checkingRow = (startRow + (startRow + height))/2;
+        for (int col = 0; col < cardGridBW[0].length-8; col+=4) {
+            if (lookingForWhite && cardGridBW[checkingRow][col] == WHITE) {
+                counter++;
+                lookingForWhite = false;
+            }
+            if (!lookingForWhite && cardGridBW[checkingRow][col] == BLACK) {
+                counter++;
+                lookingForWhite = true;
+            }
+        }
+        return counter;
     }
 
     public void assignTopLeft() {

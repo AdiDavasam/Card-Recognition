@@ -40,6 +40,7 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         for (Card a : cards) {
             a.copySubGridBW(red);
             a.makePointList();
+            a.copyColorGrid(img.getRedChannel(), img.getGreenChannel(), img.getBlueChannel());
         }
 
         for (Card a : cards) {
@@ -47,7 +48,11 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
             a.assignBottomLeft();
             a.assignBottomRight();
             a.assignTopRight();
+            a.getCardColor();
+            System.out.println(a.getShapeColor() + "\t" + a.findAmountOfShapes());
         }
+
+
 
         img.setColorChannels(red, green, blue);
         return img;
