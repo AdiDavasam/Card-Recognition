@@ -38,7 +38,7 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         makePointList();//all points in grid into points
 
         for (Card a : cards) {
-            a.copySubGrid(red);
+            a.copySubGridBW(red);
             a.makePointList();
         }
 
@@ -83,13 +83,20 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         }
         rowSplits.add(red.length-1);
         columnSplits.add(red[0].length-1);
+//        for (int i = 0; i < rowSplits.size(); i++) {
+//            System.out.println("rows: " + rowSplits.get(i));
+//        }
+//        for (int i = 0; i < columnSplits.size(); i++) {
+//            System.out.println("cols: " + columnSplits.get(i));
+//        }
 
-        for (int i = 0; i < rowSplits.size() / 2; i+=2) {
+        for (int i = 0; i < rowSplits.size() - 2; i+=2) {
             int startRow = (rowSplits.get(i) + rowSplits.get(i+1))/2;
-            int height = rowSplits.get(i+2) - rowSplits.get(i+1); // this is not the height of the card only between wrong this
-            for (int j = 0; j < columnSplits.size() / 2; j+=2) {
-                int startCol = (columnSplits.get(i) + columnSplits.get(i+1))/2;
-                int width = columnSplits.get(i+1) - columnSplits.get(i);
+            int height = rowSplits.get(i+2) - rowSplits.get(i); // this is not the height of the card only between wrong this
+            for (int j = 0; j < columnSplits.size() - 2; j+=2) {
+                int startCol = (columnSplits.get(j) + columnSplits.get(j+1))/2;
+                int width = columnSplits.get(j+2) - columnSplits.get(j);
+//                System.out.println("Row: " + startRow + " Col: " + startCol + " h: " + height + " w: " + width );
                 cards.add(new Card(startRow,startCol,height,width));
             }
         }
@@ -176,10 +183,10 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
     public void drawOverlay(PApplet window, DImage original, DImage filtered) {
         window.fill(255, 0, 0);
         for (Card a : cards) {
-            window.ellipse(a.getTopLeft().getCol() + a.getStartCol(), a.getTopLeft().getRow() + a.getStartRow(), 20, 20);
-            window.ellipse(a.getBottomLeft().getCol() + a.getStartCol(), a.getBottomLeft().getRow() + a.getStartRow(), 20, 20);
-            window.ellipse(a.getTopRight().getCol() + a.getStartCol(), a.getTopRight().getRow() + a.getStartRow(), 20, 20);
-            window.ellipse(a.getBottomRight().getCol() + a.getStartCol(), a.getBottomRight().getRow() + a.getStartRow(), 20, 20);
+            window.ellipse(a.getTopLeft().getCol() + a.getStartCol(), a.getTopLeft().getRow() + a.getStartRow(), 10, 10);
+            window.ellipse(a.getBottomLeft().getCol() + a.getStartCol(), a.getBottomLeft().getRow() + a.getStartRow(), 10, 10);
+            window.ellipse(a.getTopRight().getCol() + a.getStartCol(), a.getTopRight().getRow() + a.getStartRow(), 10, 10);
+            window.ellipse(a.getBottomRight().getCol() + a.getStartCol(), a.getBottomRight().getRow() + a.getStartRow(), 10, 10);
         }
     }
 }

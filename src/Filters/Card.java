@@ -3,9 +3,10 @@ package Filters;
 import java.util.ArrayList;
 
 public class Card {
-    private short[][] cardGrid;
+    private short[][] cardGridBW, colorGridR, colorGridG, colorGridB;
     private int startRow, startCol, width, height;
     private Point topLeft, bottomLeft, topRight, bottomRight;
+    private String shapeColor;
     ArrayList<Point> allPoints;
     Point controlPoint;
 
@@ -21,21 +22,53 @@ public class Card {
         bottomLeft = new Point(black,black,black,0,0);
         topRight = new Point(black,black,black,0,0);
         bottomRight = new Point(black,black,black,0,0);
-        cardGrid = new short[height][width];
+        cardGridBW = new short[height][width];
+        colorGridR = new short[height][width];
+        colorGridG = new short[height][width];
+        colorGridB = new short[height][width];
         allPoints = new ArrayList<>();
 
     }
 
-    public void copySubGrid(short[][] originalGrid) {
-        cardGrid = new short[height][width];
+    public void copySubGridBW(short[][] originalGrid) {
 
         for (int row = startRow; row < startRow + height - 1; row++) {
             for (int col = startCol; col < startCol + width - 1; col++) {
-                cardGrid[row - startRow][col-startCol] = originalGrid[row][col];
+                cardGridBW[row - startRow][col-startCol] = originalGrid[row][col];
             }
 //            System.out.println(row);
         }
 //        makePointList();
+    }
+
+    public void copyColorGrid(short[][] redGrid, short[][] greenGrid, short[][] blueGrid) {
+        for (int row = startRow; row < startRow + height - 1; row++) {
+            for (int col = startCol; col < startCol + width - 1; col++) {
+                colorGridR[row - startRow][col-startCol] = redGrid[row][col];
+                colorGridG[row - startRow][col-startCol] = greenGrid[row][col];
+                colorGridB[row - startRow][col-startCol] = blueGrid[row][col];
+            }
+        }
+    }
+
+    public void getCardColor() {
+        int redSum = 0;
+        int greenSum = 0;
+        int blueSum = 0;
+        for (int row = 0; row < colorGridR.length; row++) {
+            for (int col = 0; col < colorGridR[0].length; col++) {
+                if (colorGridR[row][col] > 200 && colorGridG[row][col] > 200 && colorGridB[row][col] > 200) continue;
+                if (colorGridR[row][col] < 80 && colorGridG[row][col] < 80 && colorGridB[row][col] < 80) continue;
+
+                redSum+= colorGridR[row][col];
+                greenSum+= colorGridG[row][col];
+                blueSum+= colorGridB[row][col];
+            }
+        }
+        if (greenSum > redSum && greenSum > blueSum) shapeColor = "Green";
+        if (blueSum > greenSum && blueSum > redSum) shapeColor = "Purple";
+        if (redSum > greenSum && (double)blueSum/redSum >= 0.8) shapeColor = "Purple"; //bc purple sometimes has a bit mroe red than blue
+        if (redSum > greenSum && (double)blueSum/redSum < 0.8) shapeColor = "Red";
     }
 
     public void assignTopLeft() {
@@ -106,7 +139,7 @@ public class Card {
     public void makePointList(){
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
-                allPoints.add(new Point(cardGrid[row][col], cardGrid[row][col],cardGrid[row][col],row,col));
+                allPoints.add(new Point(cardGridBW[row][col], cardGridBW[row][col], cardGridBW[row][col],row,col));
             }
         }
     }
@@ -141,5 +174,9 @@ public class Card {
 
     public int getHeight() {
         return height;
+    }
+
+    public String getShapeColor() {
+        return shapeColor;
     }
 }
