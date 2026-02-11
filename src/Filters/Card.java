@@ -76,18 +76,16 @@ public class Card {
         int counter = 0;
         int checkingColor = WHITE;
         boolean lookingForWhite = true;
-        int checkingRow = (startRow + (startRow + height))/2;
-        for (int col = 0; col < cardGridBW[0].length-8; col+=4) {
+        int checkingRow = height/2;
+//        System.out.println("Row: " + (checkingRow + startRow));
+        for (int col = width/6; col < width - width/6; col++) {
             if (lookingForWhite && cardGridBW[checkingRow][col] == WHITE) {
                 counter++;
                 lookingForWhite = false;
             }
-            if (!lookingForWhite && cardGridBW[checkingRow][col] == BLACK) {
-                counter++;
-                lookingForWhite = true;
-            }
+            if (!lookingForWhite && cardGridBW[checkingRow][col] == BLACK) lookingForWhite = true;
         }
-        return counter;
+        return counter/2;
     }
 
     public void assignTopLeft() {
