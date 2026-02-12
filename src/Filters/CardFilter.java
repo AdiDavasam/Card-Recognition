@@ -11,7 +11,6 @@ import java.util.ArrayList;
 public class CardFilter implements PixelFilter, Interactive, Drawable {
     short threshold;
     short[][] red, green, blue, grid;
-    ArrayList<Cluster> clusters;
     ArrayList<Point> points;
     int numberOfCardsHeight;
     int numberOfCardsWidth;
@@ -19,7 +18,6 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
 
     public CardFilter() {
         threshold = 190;
-        clusters = new ArrayList<>();
         points = new ArrayList<>();
         numberOfCardsHeight = 3;
         numberOfCardsWidth = 3;
@@ -130,12 +128,6 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
                 green[row][col] = grid[row][col];
                 blue[row][col] = grid[row][col];
             }
-        }
-    }
-
-    public void printPointsInCluster(Cluster cluster) {
-        for (Point p : cluster.getPoints()) {
-            System.out.println("Row: " + p.getRow() +"\tCol: " + p.getCol());
         }
     }
 

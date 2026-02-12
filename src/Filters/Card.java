@@ -74,18 +74,21 @@ public class Card {
 
     public int findAmountOfShapes() {
         int counter = 0;
-        int checkingColor = WHITE;
-        boolean lookingForWhite = true;
-        int checkingRow = height/2;
-//        System.out.println("Row: " + (checkingRow + startRow));
-        for (int col = width/6; col < width - width/6; col++) {
-            if (lookingForWhite && cardGridBW[checkingRow][col] == WHITE) {
-                counter++;
-                lookingForWhite = false;
+        boolean waitingForWhite = false;
+        for (int col = topLeft.getCol(); col < bottomRight.getCol(); col++) {
+            double sum = 0;
+            for (int row = topLeft.getRow()+20; row < bottomRight.getRow()-20; row++) {
+                sum += cardGridBW[row][col];
+//                System.out.println("row: " + row + " col: " + col);
             }
-            if (!lookingForWhite && cardGridBW[checkingRow][col] == BLACK) lookingForWhite = true;
+            if ((sum)/(bottomRight.getRow() - topLeft.getRow() - 40) < 251 && !waitingForWhite) {
+                counter++;
+                waitingForWhite = true;
+            }
+            if (sum/(bottomRight.getRow() - topLeft.getRow() - 40) > 252) waitingForWhite = false;
         }
-        return counter/2;
+//        System.out.println("Row: " + (checkingRow + startRow));
+        return counter;
     }
 
     public void assignTopLeft() {
