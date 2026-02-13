@@ -15,6 +15,7 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
     int numberOfCardsHeight;
     int numberOfCardsWidth;
     ArrayList<Card> cards;
+    boolean[] showCorners;
 
     public CardFilter() {
         threshold = 190;
@@ -22,7 +23,10 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
         numberOfCardsHeight = 3;
         numberOfCardsWidth = 3;
         cards = new ArrayList<>();
-
+        showCorners = new boolean[9];
+        for (int i = 0; i < showCorners.length; i++) {
+            showCorners[i] = false;
+        }
     }
     @Override
     public DImage processImage(DImage img) {
@@ -165,25 +169,33 @@ public class CardFilter implements PixelFilter, Interactive, Drawable {
             threshold += 5;
             System.out.println("Threshold: " + threshold);
         }
-        if (key == '1') System.out.println(cards.get(0).getStartRow());
-        if (key == '2') System.out.println(cards.get(1).getStartRow());
-        if (key == '3') System.out.println(cards.get(2).getStartRow());
-        if (key == '4') System.out.println(cards.get(3).getStartRow());
-        if (key == '5') System.out.println(cards.get(4).getStartRow());
-        if (key == '6') System.out.println(cards.get(5).getStartRow());
-        if (key == '7') System.out.println(cards.get(6).getStartRow());
-        if (key == '8') System.out.println(cards.get(7).getStartRow());
+        if (key == '1') showCorners[0] = !showCorners[0];
+        if (key == '2') showCorners[1] = !showCorners[1];
+        if (key == '3') showCorners[2] = !showCorners[2];
+        if (key == '4') showCorners[3] = !showCorners[3];
+        if (key == '5') showCorners[4] = !showCorners[4];
+        if (key == '6') showCorners[5] = !showCorners[5];
+        if (key == '7') showCorners[6] = !showCorners[6];
+        if (key == '8') showCorners[7] = !showCorners[7];
+        if (key == '9') showCorners[8] = !showCorners[8];
 
 
     }
     @Override
     public void drawOverlay(PApplet window, DImage original, DImage filtered) {
-        window.fill(255, 0, 0);
-        for (Card a : cards) {
-            window.ellipse(a.getTopLeft().getCol() + a.getStartCol(), a.getTopLeft().getRow() + a.getStartRow(), 10, 10);
-            window.ellipse(a.getBottomLeft().getCol() + a.getStartCol(), a.getBottomLeft().getRow() + a.getStartRow(), 10, 10);
-            window.ellipse(a.getTopRight().getCol() + a.getStartCol(), a.getTopRight().getRow() + a.getStartRow(), 10, 10);
-            window.ellipse(a.getBottomRight().getCol() + a.getStartCol(), a.getBottomRight().getRow() + a.getStartRow(), 10, 10);
+        window.fill(0);
+        for (int i = 0; i < cards.size(); i ++) {
+            Card a = cards.get(i);
+            if(a.getShapeColor().equals("Purple")) window.fill(105,55,165);
+            if(a.getShapeColor().equals("Green")) window.fill(35,160,75);
+            if(a.getShapeColor().equals("Red")) window.fill(230,65,50);
+            if (showCorners[i]) {
+                int circleSize = 5 * (a.findAmountOfShapes() + 1);
+                window.ellipse(a.getTopLeft().getCol() + a.getStartCol(), a.getTopLeft().getRow() + a.getStartRow(), circleSize, circleSize);
+                window.ellipse(a.getBottomLeft().getCol() + a.getStartCol(), a.getBottomLeft().getRow() + a.getStartRow(), circleSize, circleSize);
+                window.ellipse(a.getTopRight().getCol() + a.getStartCol(), a.getTopRight().getRow() + a.getStartRow(), circleSize, circleSize);
+                window.ellipse(a.getBottomRight().getCol() + a.getStartCol(), a.getBottomRight().getRow() + a.getStartRow(), circleSize, circleSize);
+            }
         }
     }
 }
